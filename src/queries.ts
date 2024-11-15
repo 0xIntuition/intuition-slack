@@ -1,15 +1,18 @@
 import { gql, request } from 'graphql-request'
 
-export const searchAtomsByUriQuery = gql`
-query SearchAtomsByUri($uri: String) {
+export const searchAtomsQuery = gql`
+query SearchAtoms($str: String, $likeStr: String) {
   atoms(
+    order_by: { vault: { positionCount: desc } }
+    limit: 5
     where: {
       _or: [
-        { data: { _eq: $uri } }
-        { value: { thing: { url: { _eq: $uri } } } }
-        { value: { person: { url: { _eq: $uri } } } }
-        { value: { organization: { url: { _eq: $uri } } } }
-        { value: { book: { url: { _eq: $uri } } } }
+        { data: { _eq: $str } }
+        { value: { thing: { url: { _ilike: $likeStr } } } }
+        { value: { thing: { name: { _ilike: $likeStr } } } }
+        { value: { thing: { description: { _ilike: $likeStr } } } }
+        { value: { person: { url: { _ilike: $likeStr } } } }
+        { value: { organization: { url: { _ilike: $likeStr } } } }
       ]
     }
   ) {
@@ -42,17 +45,6 @@ query SearchAtomsByUri($uri: String) {
     }
     vault {
       positionCount
-      totalShares
-      currentSharePrice
-      positions(order_by: { shares: desc }, limit: 5) {
-        shares
-        account {
-          id
-          type
-          image
-          label
-        }
-      }
     }
     asSubject {
       id
@@ -69,47 +61,21 @@ query SearchAtomsByUri($uri: String) {
         id
       }
       counterVault {
-        id
         positionCount
-        totalShares
-        currentSharePrice
-        positions(order_by: { shares: desc }, limit: 5) {
-          shares
-          account {
-            id
-            type
-            image
-            label
-          }
-        }
       }
       vault {
-        id
         positionCount
-        totalShares
-        currentSharePrice
-        positions(order_by: { shares: desc }, limit: 5) {
-          shares
-          account {
-            id
-            type
-            image
-            label
-          }
-        }
       }
     }
   }
-  chainLinkPrices(limit: 1, order_by: { id: desc }) {
-    usd
-  }
 }`;
 
-export async function searchAtomsByUri(uri: string) {
+export async function searchAtoms(str: string) {
+  const likeStr = `%${str}%`;
   const result = await request(
     process.env.GRAPHQL_ENDPOINT as string,
-    searchAtomsByUriQuery,
-    { uri }
+    searchAtomsQuery,
+    { str, likeStr }
   )
   return result
 }

@@ -1,6 +1,6 @@
 import { App } from '@slack/bolt';
 import { config } from 'dotenv';
-import { searchAtomsByUri } from './queries';
+import { searchAtoms } from './queries';
 config();
 // Initializes your app with your bot token and signing secret
 
@@ -33,23 +33,27 @@ const app = new App({
 
 app.command('/atom', async ({ command, ack, respond }) => {
   // Acknowledge command request
-  await ack();
+  await ack('Searching...');
 
-  const result: any = await searchAtomsByUri(command.text);
+
+
+  const result: any = await searchAtoms(command.text);
   console.log(result);
 
-  const atomBlocks = result.atoms.map((atom: any) => ({
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: `*${atom.label}*\nID: ${atom.id}\n${atom.value?.thing?.description}`
-    },
-    accessory: {
-      type: 'image',
-      image_url: atom.image,
-      alt_text: 'alt text for image'
+  const atomBlocks = result.atoms.map((atom: any) => {
+    return {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `*${atom.label}*\nID: ${atom.id}\n${atom.value?.thing?.description}`
+      },
+      accessory: {
+        type: 'image',
+        image_url: atom.image,
+        alt_text: 'alt text for image'
+      }
     }
-  }));
+  });
 
   const blocks = [
     {
