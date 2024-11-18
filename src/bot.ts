@@ -31,7 +31,7 @@ const app = new App({
   appToken: process.env.SLACK_APP_TOKEN
 });
 
-app.command('/atom', async ({ command, ack, respond }) => {
+app.command('/intuition', async ({ command, ack, respond }) => {
   // Acknowledge command request
   await ack('Searching...');
 
