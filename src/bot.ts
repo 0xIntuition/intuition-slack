@@ -33,14 +33,11 @@ const app = new App({
 
 app.command('/intuition', async ({ command, ack, respond }) => {
   // Acknowledge command request
-  await ack('Searching...');
-
-
+  await ack(`Searching for *"${command.text}"* ...`);
 
   const result: any = await searchAtoms(command.text);
 
   const atomBlocks: any = []
-
 
   result.atoms.forEach((atom: any) => {
     const description = atom.value?.thing?.description ? atom.value?.thing?.description : atom.value?.person?.description || '';
@@ -89,7 +86,7 @@ app.command('/intuition', async ({ command, ack, respond }) => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `Search results for ${command.text}`
+        text: `Search results for *"${command.text}"*`
       },
 
     },
