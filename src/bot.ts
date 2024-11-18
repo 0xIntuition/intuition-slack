@@ -14,7 +14,7 @@ if (!process.env.SLACK_SIGNING_SECRET) {
   process.exit(1);
 }
 
-if (!process.env.SLACK_APP_TOKEN) {
+if (process.env.NODE_ENV !== 'production' && !process.env.SLACK_APP_TOKEN) {
   console.log('SLACK_APP_TOKEN is required to run this app');
   process.exit(1);
 }
@@ -27,7 +27,7 @@ if (!process.env.GRAPHQL_ENDPOINT) {
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
-  socketMode: true,
+  socketMode: process.env.NODE_ENV === 'production' ? false : true,
   appToken: process.env.SLACK_APP_TOKEN
 });
 
@@ -38,7 +38,6 @@ app.command('/intuition', async ({ command, ack, respond }) => {
 
 
   const result: any = await searchAtoms(command.text);
-  console.log(result);
 
   const atomBlocks: any = []
 
@@ -50,7 +49,7 @@ app.command('/intuition', async ({ command, ack, respond }) => {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `<https://beta.portal.intuition.systems/app/identity/${atom.id}|*${atom.label}*>\n${description}\n${url}`
+        text: `<https://beta.portal.intuition.systems/app/identity/${atom.id}|*${atom.label}*> \n${description}\n<https://i7n.app/a/${atom.id}|i7n> ${url}`
       }
     };
 
@@ -100,7 +99,6 @@ app.command('/intuition', async ({ command, ack, respond }) => {
     ...atomBlocks,
   ]
 
-  console.log(JSON.stringify(blocks, null, 2));
 
   try {
     await respond({
