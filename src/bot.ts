@@ -40,19 +40,49 @@ app.command('/atom', async ({ command, ack, respond }) => {
   const result: any = await searchAtoms(command.text);
   console.log(result);
 
-  const atomBlocks = result.atoms.map((atom: any) => {
-    return {
+  const atomBlocks: any = []
+
+
+  result.atoms.forEach((atom: any) => {
+    const description = atom.value?.thing?.description ? atom.value?.thing?.description : atom.value?.person?.description || '';
+    const url = atom.value?.thing?.url ? atom.value?.thing?.url : atom.value?.person?.url || '';
+    const mainBlock = {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `*${atom.label}*\nID: ${atom.id}\n${atom.value?.thing?.description}`
-      },
-      accessory: {
+        text: `<https://beta.portal.intuition.systems/app/identity/${atom.id}|*${atom.label}*>\n${description}\n${url}`
+      }
+    };
+
+    if (atom.image) {
+      mainBlock['accessory'] = {
         type: 'image',
         image_url: atom.image,
         alt_text: 'alt text for image'
       }
     }
+    atomBlocks.push(mainBlock);
+
+    if (atom.asSubject.length > 0) {
+      let triples = 'Claims:';
+      atom.asSubject.forEach((triple: any) => {
+        triples += `\n✅ ${triple.vault.positionCount}${parseInt(triple.counterVault.positionCount) > 0 ? ' / ❌ ' + triple.counterVault.positionCount : ''} - ${triple.predicate.label} ${triple.object.label}`;
+      });
+
+
+      atomBlocks.push(
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: triples
+          },
+        });
+    }
+    atomBlocks.push(
+      {
+        "type": "divider"
+      });
   });
 
   const blocks = [
@@ -68,14 +98,17 @@ app.command('/atom', async ({ command, ack, respond }) => {
       "type": "divider"
     },
     ...atomBlocks,
-    {
-      "type": "divider"
-    },
-  ];
+  ]
 
-  await respond({
-    blocks
-  });
+  console.log(JSON.stringify(blocks, null, 2));
+
+  try {
+    await respond({
+      blocks
+    });
+  } catch (error) {
+    console.error(error.message);
+  }
 });
 
 

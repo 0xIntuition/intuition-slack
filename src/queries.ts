@@ -8,6 +8,7 @@ query SearchAtoms($str: String, $likeStr: String) {
     where: {
       _or: [
         { data: { _eq: $str } }
+        { value: { account: { label: { _ilike: $likeStr } } } }
         { value: { thing: { url: { _ilike: $likeStr } } } }
         { value: { thing: { name: { _ilike: $likeStr } } } }
         { value: { thing: { description: { _ilike: $likeStr } } } }
@@ -46,7 +47,17 @@ query SearchAtoms($str: String, $likeStr: String) {
     vault {
       positionCount
     }
-    asSubject {
+    asSubject(
+      limit: 15,
+      where: {
+        _or: [
+          { vault: { positionCount: { _gt: 0 } } }
+          { counterVault: { positionCount: { _gt: 0 } } }
+        ]
+      }
+
+      order_by: { vault: { positionCount: desc } }
+    ) {
       id
       object {
         id
