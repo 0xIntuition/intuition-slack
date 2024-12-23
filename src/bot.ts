@@ -59,10 +59,10 @@ app.command('/intuition', async ({ command, ack, respond }) => {
     }
     atomBlocks.push(mainBlock);
 
-    if (atom.asSubject.length > 0) {
+    if (atom.as_subject_triples.length > 0) {
       let triples = 'Claims:';
-      atom.asSubject.forEach((triple: any) => {
-        triples += `\n✅ ${triple.vault.positionCount}${parseInt(triple.counterVault.positionCount) > 0 ? ' / ❌ ' + triple.counterVault.positionCount : ''} - ${triple.predicate.label} ${triple.object.label}`;
+      atom.as_subject_triples.forEach((triple: any) => {
+        triples += `\n✅ ${triple.vault.position_count}${parseInt(triple.counter_vault.position_count) > 0 ? ' / ❌ ' + triple.counter_vault.position_count : ''} - ${triple.predicate.label} ${triple.object.label}`;
       });
 
 

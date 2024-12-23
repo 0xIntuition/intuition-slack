@@ -3,7 +3,7 @@ import { gql, request } from 'graphql-request'
 export const searchAtomsQuery = gql`
 query SearchAtoms($str: String, $likeStr: String) {
   atoms(
-    order_by: { vault: { positionCount: desc } }
+    order_by: { vault: { position_count: desc } }
     limit: 5
     where: {
       _or: [
@@ -45,18 +45,18 @@ query SearchAtoms($str: String, $likeStr: String) {
       }
     }
     vault {
-      positionCount
+      position_count
     }
-    asSubject(
+    as_subject_triples(
       limit: 15,
       where: {
         _or: [
-          { vault: { positionCount: { _gt: 0 } } }
-          { counterVault: { positionCount: { _gt: 0 } } }
+          { vault: { position_count: { _gt: 0 } } }
+          { counter_vault: { position_count: { _gt: 0 } } }
         ]
       }
 
-      order_by: { vault: { positionCount: desc } }
+      order_by: { vault: { position_count: desc } }
     ) {
       id
       object {
@@ -71,11 +71,11 @@ query SearchAtoms($str: String, $likeStr: String) {
         image
         id
       }
-      counterVault {
-        positionCount
+      counter_vault {
+        position_count
       }
       vault {
-        positionCount
+        position_count
       }
     }
   }
